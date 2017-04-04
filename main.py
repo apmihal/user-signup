@@ -14,15 +14,60 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import os
 import re
-import jinja2
 import webapp2
 
-
-
-template_dir = os.path.join(os.path.dirname(__file__), 'templates')
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir))
+raw = """
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>User Sign Up</title>
+        <style>
+            .error {
+                color: red;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>
+            Signup
+        </h1>
+        <form method="post">
+            <table>
+                <tr>
+                    <td><label for="username">Username</label></td>
+                    <td>
+                        <input name="username" type="text" value="" required>
+                        <span class="error">%s</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="password">Password</label></td>
+                    <td>
+                        <input name="password" type="password" required>
+                        <span class="error">%s</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="verify">Verify Password</label></td>
+                    <td>
+                        <input name="verify" type="password" required>
+                        <span class="error">%s</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="email">Email (optional)</label></td>
+                    <td>
+                        <input name="email" type="email" value="">
+                        <span class="error">%s</span>
+                    </td>
+                </tr>
+            </table>
+            <input type="submit">
+        </form>
+    </body>
+</html>
+"""
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 PASS_RE = re.compile(r"^.{3,20}$")
@@ -39,9 +84,12 @@ def valid_email(email):
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        error = "Wrong!"
-        t = jinja_env.get_template("base.html")
-        content = t.render(error=error)
+        error_username = ""
+        error_password = ""
+        error_verify = ""
+        error_email = ""
+
+        content = raw %(error_username, error_password, error_verify, error_email)
         self.response.write(content)
 
     def post(self):
@@ -63,23 +111,28 @@ class MainHandler(webapp2.RequestHandler):
             if not valid_password(password):
                 error_password = "That's not a valid password."
 
-        if password != verify:
-            error_verify = "Passwords do not match"
+        if password or verify:
+            if password != verify:
+                error_verify = "Passwords do not match"
 
         if email:
             if not valid_email(email):
                 error_email = "That's not a valid email."
 
+        if error_username or error_password or error_verify or error_email:
+            error_content = raw %(error_username, error_password, error_verify, error_email)
+            self.response.write(error_content)
+        else:
+            self.redirect("/welcome?username=" + username)
 
-        t = jinja_env.get_template("base.html")
-        content = t.render(error_username=error_username,
-                            error_password=error_password,
-                            error_verify=error_verify,
-                            error_email=error_email
-                            )
+class WelcomeHandler(webapp2.RequestHandler):
+    def get(self):
+        username = self.request.get("username")
+        content = "<h1>Welcome, " + username + "!</h1>"
         self.response.write(content)
 
 
 app = webapp2.WSGIApplication([
-    ('/', MainHandler)
+    ('/', MainHandler),
+    ('/welcome', WelcomeHandler)
 ], debug=True)
