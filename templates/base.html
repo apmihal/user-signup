@@ -17,29 +17,29 @@
                 <tr>
                     <td><label for="username">Username</label></td>
                     <td>
-                        <input name="username" type="text" required>
-                        <span class="error"></span>
+                        <input name="username" type="text" value="" required>
+                        <span class="error">{{error_user}}</span>
                     </td>
                 </tr>
                 <tr>
                     <td><label for="password">Password</label></td>
                     <td>
                         <input name="password" type="password" required>
-                        <span class="error"></span>
+                        <span class="error">{{error_pass}}</span>
                     </td>
                 </tr>
                 <tr>
                     <td><label for="verify">Verify Password</label></td>
                     <td>
                         <input name="verify" type="password" required>
-                        <span class="error"></span>
+                        <span class="error">{{error_verify}}</span>
                     </td>
                 </tr>
                 <tr>
                     <td><label for="email">Email (optional)</label></td>
                     <td>
                         <input name="email" type="email" value="">
-                        <span class="error"></span>
+                        <span class="error">{{error_email}}</span>
                     </td>
                 </tr>
             </table>
