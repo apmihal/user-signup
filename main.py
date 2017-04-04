@@ -50,19 +50,33 @@ class MainHandler(webapp2.RequestHandler):
         verify = self.request.get("verify")
         email = self.request.get("email")
 
-        error_user = ""
-        error_pass = ""
+        error_username = ""
+        error_password = ""
         error_verify = ""
         error_email = ""
 
         if username:
             if not valid_username(username):
-                error_user = "That's not a valid username."
+                error_username = "That's not a valid username."
 
+        if password:
+            if not valid_password(password):
+                error_password = "That's not a valid password."
+
+        if password != verify:
+            error_verify = "Passwords do not match"
+
+        if email:
+            if not valid_email(email):
+                error_email = "That's not a valid email."
 
 
         t = jinja_env.get_template("base.html")
-        content = t.render(error_user=error_user)
+        content = t.render(error_username=error_username,
+                            error_password=error_password,
+                            error_verify=error_verify,
+                            error_email=error_email
+                            )
         self.response.write(content)
 
 
