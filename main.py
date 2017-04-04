@@ -37,7 +37,7 @@ raw = """
                 <tr>
                     <td><label for="username">Username</label></td>
                     <td>
-                        <input name="username" type="text" value="" required>
+                        <input name="username" type="text" value="%s" required>
                         <span class="error">%s</span>
                     </td>
                 </tr>
@@ -58,7 +58,7 @@ raw = """
                 <tr>
                     <td><label for="email">Email (optional)</label></td>
                     <td>
-                        <input name="email" type="email" value="">
+                        <input name="email" type="email" value="%s">
                         <span class="error">%s</span>
                     </td>
                 </tr>
@@ -84,12 +84,14 @@ def valid_email(email):
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
+        username = ""
+        email = ""
         error_username = ""
         error_password = ""
         error_verify = ""
         error_email = ""
 
-        content = raw %(error_username, error_password, error_verify, error_email)
+        content = raw %(username,error_username, error_password, error_verify, email, error_email)
         self.response.write(content)
 
     def post(self):
@@ -120,7 +122,7 @@ class MainHandler(webapp2.RequestHandler):
                 error_email = "That's not a valid email."
 
         if error_username or error_password or error_verify or error_email:
-            error_content = raw %(error_username, error_password, error_verify, error_email)
+            error_content = raw %(username,error_username, error_password, error_verify, email, error_email)
             self.response.write(error_content)
         else:
             self.redirect("/welcome?username=" + username)
