@@ -17,6 +17,7 @@
 import re
 import webapp2
 
+# This is the raw string of html that will be used so the variables can be subbed as needed.
 raw = """
 <!DOCTYPE html>
 <html>
@@ -69,10 +70,12 @@ raw = """
 </html>
 """
 
+# Sets up definitions for regular expressions to check input validity
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 PASS_RE = re.compile(r"^.{3,20}$")
 EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
 
+# Series of functions to check validity against regular expressions
 def valid_username(username):
     return USER_RE.match(username)
 
@@ -84,6 +87,7 @@ def valid_email(email):
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
+        # Blank string for raw html so that %s doesn't show up on page
         username = ""
         email = ""
         error_username = ""
@@ -91,20 +95,24 @@ class MainHandler(webapp2.RequestHandler):
         error_verify = ""
         error_email = ""
 
+        # Sub in variables in raw to create content for page
         content = raw %(username,error_username, error_password, error_verify, email, error_email)
         self.response.write(content)
 
     def post(self):
+        # Get variables from post
         username = self.request.get("username")
         password = self.request.get("password")
         verify = self.request.get("verify")
         email = self.request.get("email")
 
+        # Clears errors so that they don't persist of 1 error is fixed and another occurs
         error_username = ""
         error_password = ""
         error_verify = ""
         error_email = ""
 
+        # If the variables contain values, checks for validity and creates error messages
         if username:
             if not valid_username(username):
                 error_username = "That's not a valid username."
@@ -121,9 +129,11 @@ class MainHandler(webapp2.RequestHandler):
             if not valid_email(email):
                 error_email = "That's not a valid email."
 
+        # If an error occurs, sub in error messages and re-render
         if error_username or error_password or error_verify or error_email:
             error_content = raw %(username,error_username, error_password, error_verify, email, error_email)
             self.response.write(error_content)
+        # If all is well, redirect to welcome page
         else:
             self.redirect("/welcome?username=" + username)
 
